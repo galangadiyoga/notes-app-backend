@@ -1,111 +1,231 @@
-const { nanoid } = require('nanoid');
-const notes = require('./notes');
+const notess = require('./plant');
 
-const addNoteHandler = (request, h) => {
-  const { title, tags, body } = request.payload;
+const postPlantHandler = (request, h) => {
+  const {
+    name,
+    description,
+    latinname,
+    howtocare,
+    first,
+    second,
+    third,
+    fourth,
+    fifth,
+    sixth,
+    seventh,
+    eighth,
+  } = request.payload;
 
-  const id = nanoid(16);
-  const createdAt = new Date().toISOString();
-  const updateAt = createdAt;
+  const id = name.replace(/\s+/g, '').toLowerCase();
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
 
-  const newNote = {
-    title, tags, body, id, createdAt, updateAt,
+  const NewPlant = {
+    id,
+    name,
+    description,
+    latinname,
+    howtocare,
+    first,
+    second,
+    third,
+    fourth,
+    fifth,
+    sixth,
+    seventh,
+    eighth,
+    insertedAt,
+    updatedAt,
   };
 
-  notes.push(newNote);
+  if (name === undefined) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal menambahkan data. Mohon isi nama data',
+    });
+    response.code(400);
+    return response;
+  }
 
-  const isSuccess = notes.filter((note) => note.id === id).length > 0;
+  notess.push(NewPlant);
+
+  const isSuccess = notess.filter((notes) => notes.id === id).length > 0;
 
   if (isSuccess) {
     const response = h.response({
       status: 'success',
-      message: 'Catatan berhasil ditambahkan',
+      message: 'data berhasil ditambahkan',
       data: {
-        noteId: id,
+        plantId: id,
       },
     });
     response.code(201);
     return response;
   }
+
   const response = h.response({
-    status: 'fail',
-    message: 'Catatan gagal ditambahkan',
+    status: 'error',
+    message: 'data gagal ditambahkan',
   });
   response.code(500);
   return response;
 };
 
-const getAllNotesHandler = () => ({
-  status: 'success',
-  data: {
-    notes,
-  },
-});
+const getPlantHandler = (request, h) => {
+  const plantTemp = notess;
+  const { name } = request.query;
 
-const getNoteByIdHandler = (request, h) => {
+  if (name !== undefined) {
+    // eslint-disable-next-line no-unused-vars
+    const plant = notess.filter((notes) => notes.name.toLowerCase().includes(name.toLowerCase()));
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        notess: notess.map((notes) => ({
+          id: notes.id,
+          name: notes.name,
+          description: notes.description,
+          latinname: notes.ingredients,
+          howtocare: notes.howtocook,
+          first: notes.first,
+          second: notes.second,
+          third: notes.third,
+          fourth: notes.fourth,
+          fifth: notes.fifth,
+          sixth: notes.sixth,
+          seventh: notes.seventh,
+          eighth: notes.eighth,
+        })),
+      },
+    });
+
+    response.code(200);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'success',
+    data: {
+      plants: plantTemp.map((notes) => ({
+        id: notes.id,
+        name: notes.name,
+        description: notes.description,
+        latinname: notes.ingredients,
+        howtocare: notes.howtocook,
+        first: notes.first,
+        second: notes.second,
+        third: notes.third,
+        fourth: notes.fourth,
+        fifth: notes.fifth,
+        sixth: notes.sixth,
+        seventh: notes.seventh,
+        eighth: notes.eighth,
+      })),
+    },
+  });
+  response.code(200);
+  return response;
+};
+
+const getDetailPlantHandler = (request, h) => {
   const { id } = request.params;
 
-  const note = notes.filter((n) => n.id === id)[0];
-
-  if (note !== undefined) {
+  const plant = notess.filter((notes) => notes.id === id)[0];
+  if (plant !== undefined) {
     return {
       status: 'success',
       data: {
-        note,
+        plant,
       },
     };
   }
 
   const response = h.response({
     status: 'fail',
-    message: 'Catatan tidak ditemukan',
+    message: 'data tidak ditemukan',
   });
   response.code(404);
   return response;
 };
 
-const editNoteByIdHandler = (request, h) => {
+const putPlantHandler = (request, h) => {
   const { id } = request.params;
 
-  const { title, tags, body } = request.payload;
-  const updatedAt = new Date().toISOString();
+  const {
+    name,
+    description,
+    latinname,
+    howtocare,
+    first,
+    second,
+    third,
+    fourth,
+    fifth,
+    sixth,
+    seventh,
+    eighth,
+  } = request.payload;
 
-  const index = notes.findIndex((note) => note.id === id);
+  if (name === undefined) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui data. Mohon isi nama data',
+    });
+    response.code(400);
+    return response;
+  }
+
+  const updatedAt = new Date().toISOString();
+  const index = notess.findIndex((plant) => plant.id === id);
 
   if (index !== -1) {
-    notes[index] = {
-      ...notes[index],
-      title,
-      tags,
-      body,
+    notess[index] = {
+      ...notess[index],
+      name,
+      description,
+      latinname,
+      howtocare,
+      first,
+      second,
+      third,
+      fourth,
+      fifth,
+      sixth,
+      seventh,
+      eighth,
       updatedAt,
     };
 
     const response = h.response({
       status: 'success',
       message: 'Catatan berhasil diperbarui',
+      data: {
+        notess,
+      },
     });
     response.code(200);
     return response;
   }
+
   const response = h.response({
     status: 'fail',
-    message: 'Gagal memperbarui catatan. Id tidak ditemukan',
+    message: 'Gagal memperbarui data. Id tidak ditemukan',
   });
   response.code(404);
   return response;
 };
 
-const deleteNoteByIdHandler = (request, h) => {
+const deletePlantHandler = (request, h) => {
   const { id } = request.params;
 
-  const index = notes.findIndex((note) => note.id === id);
+  const index = notess.findIndex((idplant) => idplant.id === id);
 
   if (index !== -1) {
-    notes.splice(index, 1);
+    notess.splice(index, 1);
     const response = h.response({
       status: 'success',
-      message: 'Catatan berhasil dihapus',
+      message: 'data berhasil dihapus',
     });
     response.code(200);
     return response;
@@ -113,16 +233,16 @@ const deleteNoteByIdHandler = (request, h) => {
 
   const response = h.response({
     status: 'fail',
-    message: 'Catatan gagal dihapus. Id tidak ditemukan',
+    message: 'data gagal dihapus. Id tidak ditemukan',
   });
   response.code(404);
   return response;
 };
 
 module.exports = {
-  addNoteHandler,
-  getAllNotesHandler,
-  getNoteByIdHandler,
-  editNoteByIdHandler,
-  deleteNoteByIdHandler,
+  postPlantHandler,
+  getPlantHandler,
+  getDetailPlantHandler,
+  putPlantHandler,
+  deletePlantHandler,
 };
