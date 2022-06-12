@@ -52,7 +52,9 @@ const getPlantHandler = (request, h) => {
 
   if (name !== undefined) {
     // eslint-disable-next-line no-unused-vars
-    const plant = plants.filter((plant) => plant.name.toLowerCase().includes(name.toLowerCase()));
+    const plant = plants.filter(
+      (plant) => plant.name.toLowerCase().includes(name.toLowerCase()),
+    );
 
     const response = h.response({
       status: 'success',
