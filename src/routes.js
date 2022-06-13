@@ -7,14 +7,12 @@ const routes = [
   
   {
     method: 'GET',
-    path: '/plant',
-    config: { auth: 'jwt' },
+    path: '/plant',    
     handler: getPlantHandler,
   },
   {
     method: 'GET',
     path: '/plant/{id}',
-    config: { auth: 'jwt' },
     handler: getDetailPlantHandler,
   },
   
